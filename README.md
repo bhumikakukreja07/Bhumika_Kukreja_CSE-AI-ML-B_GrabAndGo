@@ -54,3 +54,11 @@ Grab&Go tackles all of these by letting users pre-order from multiple cafeterias
   - Chalk – Terminal string styling for colorful, readable console logs.
 
   - Psycopg – PostgreSQL adapter (optional) for managing database connections and queries.
+
+# How to Run the Project
+
+### 1. Clone & Install
+```bash
+git clone 
+cd your-repo
+npm install

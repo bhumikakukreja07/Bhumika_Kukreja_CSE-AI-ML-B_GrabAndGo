@@ -62,3 +62,25 @@ Grab&Go tackles all of these by letting users pre-order from multiple cafeterias
 git clone https://github.com/bhumikakukreja07/Bhumika_Kukreja_CSE-AI-ML-B_GrabAndGo.git
 cd your-repo
 npm install
+
+## Current Working Model
+
+### User Flow
+1. **Email Entry & Verification**  
+   - User enters their email on the login page.  
+   - An OTP is sent to the provided email.  
+   - If the OTP is correct, the user is logged in; otherwise, they continue as a guest.
+
+2. **Browsing & Cart Management**  
+   - On `grid_page.html`, users can browse and add items to their cart.  
+   - Item quantities are updated in the PostgreSQL database in real time.  
+   - Updates are reflected immediately on both the `grid_page.html` and `cart_page.html`.
+
+### Admin Flow
+- **Item Management**  
+  - Admins can upload new food items, specifying:  
+    - Name  
+    - Price  
+    - Description  
+    - Canteen/location  
+  - Uploaded items become instantly available for users to view and order.

@@ -34,4 +34,4 @@ Grab&Go is a web app that lets you pre-order from multiple cafeterias at once. B
 
 - Fragmented User Data: Handling OTPs, passwords, and order history across multiple platforms is cumbersome and insecure.
 
-- Grab&Go tackles all of these by letting users pre-order from multiple cafeterias, track their meals in real time, and giving admins a single dashboard to manage menus and user data.
+Grab&Go tackles all of these by letting users pre-order from multiple cafeterias, track their meals in real time, and giving admins a single dashboard to manage menus and user data.

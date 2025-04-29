@@ -101,4 +101,4 @@ node server.js
 - **Recommendation System**
   
 # Screenshot
-!(./screenshots/grabandgo)
+!(./screenshots/grabandgo.png)

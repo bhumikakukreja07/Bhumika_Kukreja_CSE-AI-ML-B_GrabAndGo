@@ -39,18 +39,18 @@ Grab&Go tackles all of these by letting users pre-order from multiple cafeterias
 # Technologies Used
 
 - Frontend
-  HTML
-  CSS
-  JavaScript
-  GSAP
+  - HTML
+  - CSS
+  - JavaScript
+  - GSAP
   
 - Backend
--- Node.js – Server-side JavaScript runtime for building the backend.
+  - Node.js – Server-side JavaScript runtime for building the backend.
 
--- Express – Fast, minimal web framework for routing and middleware.
+  - Express – Fast, minimal web framework for routing and middleware.
 
--- SMTP – Email protocol used for sending OTPs via services like Nodemailer.
+  - SMTP – Email protocol used for sending OTPs via services like Nodemailer.
 
-Chalk – Terminal string styling for colorful, readable console logs.
+  - Chalk – Terminal string styling for colorful, readable console logs.
 
-Psycopg – PostgreSQL adapter (optional) for managing database connections and queries.
+  - Psycopg – PostgreSQL adapter (optional) for managing database connections and queries.

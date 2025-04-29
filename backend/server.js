@@ -12,7 +12,6 @@ const { sendEmailSMTP } = require('./components/email_sender');
 const chalk = require('chalk');
 const cors = require('cors');
 const app = express();
-require('dotenv').config();
 
 // enable CORS for all origins (during dev)
 app.use(cors());
@@ -86,8 +85,8 @@ app.post('/login_request', async (req, res) => {
     console.log(chalk.red(`Random 6-digit number: ${randomNum}`));
   
     sendEmailSMTP(
-      process.env.SMTP_EMAIL,
-      process.env.SMTP_PASSWORD,
+      'grab.and.go.krmu@gmail.com',
+      'oipv rmbo iioz zkbe',
       email,
       `Verify your email`,
       `To verify your email address, please use the following One Time Password (OTP): ${randomNum}`,

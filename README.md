@@ -86,3 +86,17 @@ node server.js
     - Description  
     - Canteen/location  
   - Uploaded items become instantly available for users to view and order.
+
+## Future Scope
+
+- **Search Functionality**  
+  Allow users to quickly find food items by name, category, or canteen, with real-time filtering and suggestions.
+
+- **Payment Gateway Integration**  
+  Add secure online payments (e.g., Stripe, PayPal) so users can pay at the time of ordering and avoid cash handling.
+
+- **“My Orders” Dashboard**  
+  Provide users with a personalized order history and status tracker, so they can view past orders, reorder favorites, and track current requests.
+
+# Screenshot
+

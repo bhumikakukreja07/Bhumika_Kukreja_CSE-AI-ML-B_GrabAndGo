@@ -35,3 +35,22 @@ Grab&Go is a web app that lets you pre-order from multiple cafeterias at once. B
 - Fragmented User Data: Handling OTPs, passwords, and order history across multiple platforms is cumbersome and insecure.
 
 Grab&Go tackles all of these by letting users pre-order from multiple cafeterias, track their meals in real time, and giving admins a single dashboard to manage menus and user data.
+
+# Technologies Used
+
+- Frontend
+  HTML
+  CSS
+  JavaScript
+  GSAP
+  
+- Backend
+-- Node.js – Server-side JavaScript runtime for building the backend.
+
+-- Express – Fast, minimal web framework for routing and middleware.
+
+-- SMTP – Email protocol used for sending OTPs via services like Nodemailer.
+
+Chalk – Terminal string styling for colorful, readable console logs.
+
+Psycopg – PostgreSQL adapter (optional) for managing database connections and queries.

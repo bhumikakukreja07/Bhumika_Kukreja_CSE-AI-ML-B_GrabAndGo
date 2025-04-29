@@ -4,7 +4,7 @@ A project built to simplify the food ordering experience at the K.R. Mangalam Un
 # Project Title: Grab&Go
 
 #Team Members
-Bhumika Kukreja (Leader) (2401730163)
-Mohini Chauhan (Member) (2401730194)
-Mishti Jain (Member) (2401730162)
-Nikki Chauhan (Member) (2401730212)
+- **Bhumika Kukreja** (Leader) - `2401730163`  
+- **Mohini Chauhan** (Member) - `2401730194`  
+- **Mishti Jain** (Member) - `2401730162`  
+- **Nikki Chauhan** (Member) - `2401730212`

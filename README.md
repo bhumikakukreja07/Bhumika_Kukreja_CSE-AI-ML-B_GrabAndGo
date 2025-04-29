@@ -21,3 +21,17 @@ Grab&Go is a web app that lets you pre-order from multiple cafeterias at once. B
 - Admin dashboard for adding and managing food items easily
 
 - Home page to scroll through delicious food items
+
+# Problem Statement
+
+- Endless Waiting: Students and staff waste precious breaks standing in long cafeteria queues.
+
+- Limited Choice: You can only order from one canteen at a time, missing out on other nearby options.
+
+- No Pre-Order Visibility: Without a unified system, you never know when your meal will actually be ready.
+
+- Manual Menu Management: Cafeteria admins juggle spreadsheets or paper lists to update daily food items, leading to errors and delays.
+
+- Fragmented User Data: Handling OTPs, passwords, and order history across multiple platforms is cumbersome and insecure.
+
+- Grab&Go tackles all of these by letting users pre-order from multiple cafeterias, track their meals in real time, and giving admins a single dashboard to manage menus and user data.

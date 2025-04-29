@@ -63,7 +63,7 @@ git clone https://github.com/bhumikakukreja07/Bhumika_Kukreja_CSE-AI-ML-B_GrabAn
 cd your-repo
 npm install
 
-## Current Working Model
+# Current Working Model
 
 ### User Flow
 1. **Email Entry & Verification**  

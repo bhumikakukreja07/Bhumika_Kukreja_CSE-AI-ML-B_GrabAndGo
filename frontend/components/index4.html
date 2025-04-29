@@ -1,0 +1,165 @@
+<!-- sliding image -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Image and Text Slider</title>
+  <style>
+    /* Reset and basic styles */
+    body {
+      /* margin: 0; */
+      font-family: Arial, sans-serif;
+    }
+
+    @keyframes slideText {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+
+
+
+    /* Carousel container */
+    .carousel-container {
+      position: relative;
+      width: clamp(20rem, 50vw, 40rem); /* Responsive width */
+      height: clamp(20rem, 50vw, 40rem); /* Responsive height */
+      overflow: hidden;
+      margin: 0px auto; /* Centered with respect to the viewport */
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      /* height: 400px ; */
+      height: 390px ;
+      width: 400px; /* Ensure the image does not take full width */
+    }
+
+    /* Flex container for centering the carousel */
+
+
+    /* Image wrapper */
+    .carousel-images {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      height: 100%;
+    }
+
+    .carousel-images img {
+      width: 400px; /* Ensure the image does not take full width */
+      height: 400px ;
+      object-fit: contain; /* Maintain image aspect ratio without cropping */
+      flex-shrink: 0;
+    }
+
+    /* Arrow buttons */
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      opacity: 0.7;
+      z-index: 10;
+      padding: 10px;
+      border-radius: 20%;
+    }
+
+    .arrow:hover {
+      opacity: 1;
+    }
+
+    .arrow.left {
+      left: 10px;
+    }
+
+    .arrow.right {
+      right: 10px;
+    }
+
+    .arrow.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Main Carousel Section -->
+  <div id="parent_div"></div>
+
+
+  <script>
+    // Functional Image Slider
+    function renderImageCarousel() {
+      const images = [
+        "assets/food.jpeg",
+        "assets/food2.jpeg",
+        "assets/food3.jpeg",
+        "assets/food4.jpeg",
+//        "./assets/gif/hardware electrical extension/extensions.gif"
+      ]; // Replace with your image URLs
+
+      const parentDiv = document.getElementById("parent_div");
+      const carouselContainer = document.createElement("div");
+      carouselContainer.className = "carousel-container";
+
+      const carouselImages = document.createElement("div");
+      carouselImages.className = "carousel-images";
+      images.forEach(src => {
+        const img = document.createElement("img");
+        img.src = src;
+        carouselImages.appendChild(img);
+      });
+
+      const leftArrow = document.createElement("button");
+      leftArrow.className = "arrow left";
+      leftArrow.textContent = "<";
+
+      const rightArrow = document.createElement("button");
+      rightArrow.className = "arrow right";
+      rightArrow.textContent = ">";
+
+      let currentIndex = 0;
+
+      function updateCarousel() {
+        carouselImages.style.transform = `translateX(-${currentIndex * 100}%)`;
+        leftArrow.classList.toggle("disabled", currentIndex === 0);
+        rightArrow.classList.toggle("disabled", currentIndex === images.length - 1);
+      }
+
+      leftArrow.addEventListener("click", () => {
+        if (currentIndex > 0) currentIndex--;
+        updateCarousel();
+      });
+
+      rightArrow.addEventListener("click", () => {
+        if (currentIndex < images.length - 1) currentIndex++;
+        updateCarousel();
+      });
+
+      carouselContainer.appendChild(carouselImages);
+      carouselContainer.appendChild(leftArrow);
+      carouselContainer.appendChild(rightArrow);
+      parentDiv.appendChild(carouselContainer);
+
+      setInterval(() => {
+        currentIndex = (currentIndex + 1) % images.length;
+        updateCarousel();
+      }, 3000); // Auto-slide every 3 seconds
+
+      updateCarousel();
+    }
+
+    renderImageCarousel();
+  </script>
+</body>
+</html>

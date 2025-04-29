@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cart</title>
+  <style>
+    body { font-family: sans-serif; background: #f7f7f7; margin: 1rem; }
+    h1 { color: #333; text-align: center; }
+    #cart-list { list-style: none; padding: 0; max-width: 600px; margin: 0 auto; }
+    .cart-item {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+      transition: transform .2s;
+    }
+    .cart-item:hover { transform: translateY(-3px); }
+    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .item-title { font-size: 1.2rem; color: rgb(255, 166, 0); margin: 0; }
+    .item-price { font-weight: bold; color: #333; }
+    .item-user { font-size: 0.9rem; color: #666; margin: 0; }
+    .item-qty { font-size: 0.95rem; color: #555; margin: 0.3rem 0 0; }
+    .cart-summary {
+      background: #e8f8f5;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: right;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-top: 1rem;
+    }
+    .qty-btn {
+      border: none;
+      background: rgb(209, 148, 34);
+      color: #fff;
+      padding: 0.2rem 0.5rem;
+      margin: 0 0.3rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .qty-control {
+      display: flex;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    #orderBtn {
+      display: block;
+      margin: 2rem auto;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      background: rgb(209, 148, 34);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #orderBtn:hover {
+      background: rgb(180, 120, 20);
+    }
+    #toast {
+      visibility: hidden;
+      min-width: 250px;
+      margin-left: -125px;
+      background-color: #4CAF50;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 1rem;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      bottom: 30px;
+      font-size: 1rem;
+      transition: visibility 0s, opacity 0.5s ease-in-out;
+      opacity: 0;
+    }
+    #toast.show {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Cart</h1>
+  <ul id="cart-list"></ul>
+
+  <button id="orderBtn" onclick="cartBtn()">Order</button>
+
+  <div id="toast">Order placed successfully!</div>
+
+  <script type="module" src="cart.js"></script>
+
+  <script>
+    function cartBtn() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+  
+  <script type="module">
+    import { loadCartItems } from './cart.js';
+  </script>  
+</body>
+</html>

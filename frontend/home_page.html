@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Food Delivery</title>
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="styles/style.css" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo">Grab&amp;Go</div>
+    <div class="icons">
+      <img src="/assets/search.png" alt="Search" class="icon search-icon"/>
+      <img src="/assets/cart.png" alt="Cart" class="icon cart-icon" onclick="window.location.href='my_cart.html'"/>
+      <a href="login.html" class="user-link">
+        <div class="user-icon"><i class="fas fa-user"></i></div>
+      </a>
+      <span id="loggin_status" class="user-name">Guest</span>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="background">
+    <div class="background-content">
+      <h1>Order your<br/>favourite food here</h1>
+      <p>
+        Choose from a diverse menu featuring a delectable array of dishes
+        crafted with the finest ingredients and culinary expertise. Our mission
+        is to satisfy your cravings and elevate your dining experience, one
+        delicious meal at a time.
+      </p>
+      <button class="view-menu"
+              onclick="window.location.href='grid_page.html'">
+        View Menu
+      </button>
+    </div>
+    <div id="main_first_element_inside__main_containerntainer"
+         class="slider-container"></div>
+  </section>
+
+  <!-- Slider Fetch Script (Do not modify) -->
+  <script>
+    fetch('components/index4.html')
+      .then(r => r.text())
+      .then(html => {
+        const c = document.getElementById(
+          'main_first_element_inside__main_containerntainer'
+        );
+        c.classList.add('style_for_image_slider');
+        c.innerHTML = html;
+        c.querySelectorAll('script').forEach(s => {
+          const n = document.createElement('script');
+          if (s.src) n.src = s.src;
+          else n.textContent = s.textContent;
+          document.body.appendChild(n);
+        });
+      })
+      .catch(err => console.error('Error loading content:', err));
+  </script>
+
+  <!-- Contact Us Footer -->
+  <footer>
+    <div class="footer-content">
+      <h3>Contact Us</h3>
+      <p>Email:
+        <a href="mailto:grabandgo@gmail.com">grabandgo@gmail.com</a>
+      </p>
+      <p>Phone:
+        <a href="tel:+1234567890">+91 234-567-890</a>
+      </p>
+      <p class="copyright">
+        &copy; 2025 Grab&amp;Go. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    async function postData(endpoint_url, data) {
+      const hostname = window.location.hostname;
+      const port = window.location.port;
+      const base_url = `http://${hostname}:${port}${endpoint_url}`;
+      const resp = await fetch(base_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return resp.json();
+    }
+    async function login() {
+      const user_name = localStorage.getItem('email') || '';
+      const user_password = localStorage.getItem('password') || '';
+      if (user_name.length <= 1 || user_password.length <= 1) {
+        setTimeout(
+          () => (window.location.href = 'components/login.html'),
+          2000
+        );
+      } else {
+        document.getElementById('loggin_status').innerText = `Welcome ${user_name}`;
+      }
+    }
+    login();
+  </script>
+</body>
+</html>

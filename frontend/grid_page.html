@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta 
+    name="viewport" 
+    content="width=device-width, initial-scale=1.0" 
+  />
+  <title>Menu</title>
+  <link rel="stylesheet" href="styles/style_2.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script type="module" src="components/animate_popup.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+
+  <header class="main-header">
+    <div class="container-header">
+      <div class="logo">Grab<span>&amp;</span>Go</div>
+      <div class="icons">
+        <button class="cart-button" onclick="window.location.href='my_cart.html';">
+          <i class="fa fa-shopping-cart"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+  
+  <div class="canteen-buttons">
+    <button> A Block</button>
+    <button> B Block</button>
+    <button> C Block</button>
+  </div>
+  
+  <div 
+    id="game_container_id" 
+    class="container" 
+    style="margin-top: 40px;">
+  </div>
+
+  <button 
+    class="load_more" 
+    onclick="loadMore()">
+    LOAD MORE
+  </button>
+
+  <script type="module">
+    import { addHTMLToBody } from './components/create_html_elements.js';
+    import { setupPopupAnimation } from './components/animate_popup.js';
+
+    // how many items per click:
+    const batchSize    = 5;
+    // where in the list to start next time:
+    let   startingRow  = 0;
+
+    // Our single loader function:
+    async function loadMore() {
+      // make the POST
+      const resp = await fetch('/list_of_items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          list_fav_category: JSON.parse(localStorage.getItem('favourite_category')||'[]'),
+          starting_row:      startingRow,
+          number_of_row:     batchSize
+        })
+      });
+      const items = await resp.json();
+
+      // insert each new card:
+      items.forEach((item, idx) => {
+        const i = startingRow + idx;
+        addHTMLToBody(
+          'game_container_id',
+          `image-button_${i}`,
+          `custom-content_${i}`,
+          item.img,
+          item.title,
+          item.price,
+          item.description,
+          item.id,
+          '13rem',
+          '320px'
+        );
+        setupPopupAnimation(`image-button_${i}`, `custom-content_${i}`);
+      });
+
+      // advance our offset for next time:
+      startingRow += batchSize;
+    }
+
+    // expose to global so <button onclick="loadMore()"> works:
+    window.loadMore = loadMore;
+
+    // initial load:
+    loadMore();
+  </script>
+
+</body>
+</html>

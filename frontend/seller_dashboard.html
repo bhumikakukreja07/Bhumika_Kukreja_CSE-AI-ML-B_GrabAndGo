@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seller Dashboard</title>
+  <link rel="stylesheet" href="styles/style_3.css" />
+  <!-- Animate popup logic -->
+  <script type="module" src="components/animate_popup.js"></script>
+</head>
+<body>
+
+  <div class="wrapper">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <button id="addBtn" class="active">Add Items</button>
+      <button id="viewBtn">Items</button>
+      <button id="ordersBtn">Orders</button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content">
+      <!-- Add Items Section -->
+      <div id="addSection" class="section active">
+        <div class="container">
+          <h1>Add New Item</h1>
+          <form id="sellerForm">
+            <div>
+              <label for="name">Name:</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div>
+              <label for="price">Price:</label>
+              <input type="text" id="price" name="price" required>
+            </div>
+            <div>
+              <label for="description">Description:</label>
+              <input type="text" id="description" name="description" required>
+            </div>
+            <div>
+              <label for="imgPath">Image Path:</label>
+              <input type="text" id="imgPath" name="imgPath" required>
+            </div>
+            <div>
+              <label for="canteen">Canteen:</label>
+              <input type="text" id="canteen" name="canteen" required>
+            </div>
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+
+      <!--  Items Section -->
+      <div id="itemsSection" class="section">
+        <div class="container">
+          <h1>Items</h1>
+          <div id="game_container_id" style="margin-top: 20px;"></div>
+          <button id="loadMoreBtn" class="load_more">LOAD MORE</button>
+        </div>
+      </div>
+
+      <!-- Orders Section -->
+      <div id="ordersSection" class="section">
+        <div class="container">
+          <h1>Orders</h1>
+          <!-- where order cards will go -->
+          <div id="orders_container_id" style="margin-top: 20px;">
+            <ul id="cart-list"></ul>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Menu item added successfully!</div>
+
+  <!-- Toggle Panels & Form Submission -->
+  <script>
+    const addBtn = document.getElementById('addBtn');
+    const viewBtn = document.getElementById('viewBtn');
+    const addSection = document.getElementById('addSection');
+    const itemsSection = document.getElementById('itemsSection');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const container = document.getElementById('game_container_id');
+    const ordersBtn = document.getElementById('ordersBtn');
+    const ordersSection = document.getElementById('ordersSection');
+    let startingRowGlobal = 0;  
+
+    // Toggle sections
+    addBtn.addEventListener('click', () => {
+      addBtn.classList.add('active');
+      viewBtn.classList.remove('active');
+      addSection.classList.add('active');
+      itemsSection.classList.remove('active');
+      ordersBtn.classList.remove('active');
+      ordersSection.classList.remove('active');
+    });
+
+    viewBtn.addEventListener('click', () => {
+      viewBtn.classList.add('active');
+      addBtn.classList.remove('active');
+      itemsSection.classList.add('active');
+      addSection.classList.remove('active');
+      ordersBtn.classList.remove('active');
+      ordersSection.classList.remove('active');
+    });
+
+    // toggle to Orders view
+    ordersBtn.addEventListener('click', () => {
+      // activate Orders tab
+      ordersBtn.classList.add('active');
+      addBtn.classList.remove('active');
+      viewBtn.classList.remove('active');
+
+      // show Orders, hide others
+      ordersSection.classList.add('active');
+      addSection.classList.remove('active');
+      itemsSection.classList.remove('active');
+    });
+
+    // Form submission & toast
+    document.getElementById('sellerForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {
+        item_name: document.getElementById('name').value,
+        item_price: document.getElementById('price').value,
+        description: document.getElementById('description').value,
+        img_path: document.getElementById('imgPath').value,
+        canteen: document.getElementById('canteen').value
+      };
+      await fetch(window.location.origin + '/seller_dashboard', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      });
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 5000);
+    });
+
+  </script>
+
+  <!-- Module Script: Load Items -->
+  <script type="module">
+    import { addHTMLToBody } from './components/create_html_elements.js';
+    import { updateQuantityUI } from './components/create_html_elements.js';
+
+    const batchSize = 5;
+    let startingRow = 0;
+
+    async function loadMore() {
+      try {
+        const resp = await fetch('/list_of_items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          list_fav_category: JSON.parse(localStorage.getItem('favourite_category')||'[]'),
+          starting_row:      startingRow,
+          number_of_row:     batchSize
+        })
+      });
+        const items = await resp.json();
+        items.forEach((item, idx) => {
+          const i = startingRow + idx;
+          addHTMLToBody(
+            'game_container_id',
+            `image-button_${i}`,
+            `custom-content_${i}`,
+            item.img,
+            item.title,
+            item.price,
+            item.description,
+            item.id,
+            '13rem',
+            '200px'
+          );
+        });
+        startingRow += batchSize;
+        startingRowGlobal = startingRow;
+      } catch (err) {
+        console.error('Error loading items:', err);
+      }
+    }
+
+    loadMoreBtn.addEventListener('click', loadMore);
+    loadMore();
+
+
+    async function postData(endpoint_url, data) {
+      const hostname = window.location.hostname;
+      const port = window.location.port;
+      const base_url = `http://${hostname}:${port}${endpoint_url}`;
+      const response = await fetch(base_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await response.json();
+    }
+
+    async function loadCartItems() {
+
+      let email_name = localStorage.getItem('email');
+      // ask the server for this user’s cart rows
+      const result = await postData('/get_cart_items', { email_name });
+      if (!result.success) {
+        console.log('No items in the cart:');
+        return;
+      }
+
+      const cartList = document.getElementById('cart-list');
+      cartList.innerHTML = ''; // clear any old content
+
+      let totalItems = 0;
+      let totalPrice = 0;
+
+      // loop through each row and append to the UL
+      for (const row of result.items) {
+        const li = document.createElement('li');
+        const row_from__items_List = await postData('/get_row_from_table', { table_name:"items_list", item_id: row.item_id });
+        const price = parseFloat(row_from__items_List.row.price);
+        const qty = parseInt(row.quantity, 10);
+
+        totalItems += qty;
+        totalPrice += price * qty;
+
+        li.innerHTML = `
+        
+          <div class="cart-item">
+            <div class="item-header">
+              <h2 class="item-title">${row_from__items_List.row.title}</h2>
+              <span class="item-price">₹${row_from__items_List.row.price}</span>
+            </div>
+            <p class="item-user">Ordered By: ${email_name}</p>
+            <p class="item-qty">Quantity: ${row.quantity}</p>
+            <div id="cart-controls-${row.item_id}" class="qty-control"></div>
+          </div>
+          `;
+        cartList.appendChild(li);
+        updateQuantityUI(row.item_id, qty);
+      }
+
+            // Subtotal summary
+            const summaryLi = document.createElement('li');
+            summaryLi.innerHTML = `<div class="cart-summary">Subtotal (${totalItems} items): ₹${totalPrice.toFixed(2)}</div>`;
+            cartList.appendChild(summaryLi);
+
+    }
+
+    // run it as soon as the page is ready
+    window.addEventListener('DOMContentLoaded', loadCartItems);
+  </script>
+
+</body>
+</html>
+

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Form</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="login-card">
+    <div class="profile-icon">
+      <i class="fas fa-user"></i>
+    </div>
+
+    <div class="input-box">
+      <i class="fas fa-envelope"></i>
+      <input type="text" id="email" placeholder="Email ID" required />
+    </div>
+
+    <button class="login-btn" onclick="submit_button()">LOGIN</button>
+    <p id="response"></p>
+
+    <div id="my_otp_Div">
+      <br>
+      <input type="text" id="otp" placeholder="Enter OTP">
+      <br><br>
+      <button class="login-btn" onclick="submit_otp()">Submit OTP</button>
+    </div>
+  </div>
+
+    <script>
+
+    // Function to make the POST request
+    async function postData(endpoint_url, data) {
+      const hostname = window.location.hostname;
+      const port = window.location.port;
+      const base_url = `http://${hostname}:${port}${endpoint_url}`;
+      console.log(base_url)
+      var response = await fetch(base_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await response.json();
+    }
+
+      async function submit_button() {
+        let email = document.getElementById('email').value;
+        console.log(email);
+        try {
+            let result = await postData('/login_request', { email: email });
+            console.log(result.message_from_server);
+            document.getElementById('response').textContent = result.message_from_server;
+            setTimeout(function() {
+                document.getElementById("my_otp_Div").style.display = "block";
+            }, 1000);
+        } catch (err) {
+            console.error(err);
+        }
+}
+
+      async function submit_otp() {
+  // Retrieve values from input fields
+            let email = document.getElementById('email').value;
+            let otp = document.getElementById('otp').value;
+            console.log(`Submitting OTP for email: ${email} with OTP: ${otp}`);
+            
+            let result = await postData('/otp_handler', { email: email, otp: otp });
+            console.log('Server response:', result.message_from_server);
+            try {
+                
+
+                // Post the email and otp to the /otp_handler endpoint
+
+                // // Update the UI based on the response from the server
+                if(result.message_from_server === "success") {
+                    email = result.email;
+                password = result.password;
+                localStorage.setItem('email', email);
+                localStorage.setItem('password', password);
+
+                let user_name = localStorage.getItem('email');
+                let user_password = localStorage.getItem('password');
+                
+                console.log(" ");
+                console.log("this is the main saved data :----");
+                console.log(user_name);
+                console.log(user_password);
+                // document.getElementById('response').textContent = "OTP verified! Your pass is: " + result.pass;
+                // // Optionally, you might redirect or show another section here:
+                setTimeout(() => { window.location.href = "home_page.html"; }, 2000);
+                }
+                // else {
+                // document.getElementById('response').textContent = "OTP verification failed. Please try again.";
+                // }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('response').textContent = "Error verifying OTP. Please try again.";
+            }
+        }
+    </script>
+    <style>
+        * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #f6f4f7, #eceeef);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .login-card {
+      position: relative;
+      width: 360px;
+      padding: 50px 30px 30px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      text-align: center;
+    }
+
+    .profile-icon {
+      position: absolute;
+      top: -45px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #0e1e5b;
+      border-radius: 50%;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-icon i {
+      color: white;
+      font-size: 36px;
+    }
+
+    .input-box {
+      display: flex;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .input-box i {
+      color: white;
+      margin-right: 10px;
+    }
+
+    .input-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: #0e1e5b;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background: #142978;
+    }
+
+    #my_otp_Div {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #my_otp_Div input {
+      width: 100%;
+      padding: 12px;
+      background-color: rgba(0, 0, 0, 0.2);
+      border: none;
+      outline: none;
+      color: white;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    #response {
+      margin-top: 15px;
+      color: #ff4f4f;
+    }
+    </style>
+</body>
+</html>
+</body>
+</html>

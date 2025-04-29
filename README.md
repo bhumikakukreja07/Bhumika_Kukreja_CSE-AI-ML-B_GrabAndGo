@@ -62,6 +62,7 @@ Grab&Go tackles all of these by letting users pre-order from multiple cafeterias
 git clone https://github.com/bhumikakukreja07/Bhumika_Kukreja_CSE-AI-ML-B_GrabAndGo.git
 cd your-repo
 npm install
+node server.js
 ```
 
 # Current Working Model

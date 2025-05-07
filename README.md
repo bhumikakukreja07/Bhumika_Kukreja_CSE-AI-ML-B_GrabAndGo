@@ -53,8 +53,11 @@ Grab&Go tackles all of these by letting users pre-order from multiple cafeterias
 
   - Chalk – Terminal string styling for colorful, readable console logs.
 
-  - Psycopg – PostgreSQL adapter (optional) for managing database connections and queries.
+  - Psycopg – PostgreSQL adapter for managing database connections and queries.
 
+- Database
+  - PostgreSQL
+    
 # How to Run the Project
 
 ### 1. Clone & Install
@@ -99,6 +102,9 @@ node server.js
   Provide users with a personalized order history and status tracker, so they can view past orders, reorder favorites, and track current requests.
 
 - **Recommendation System**
-  
+
+# Video link
+https://drive.google.com/file/d/1OyFxb5v2JHjzrnPUJFXLSSw5IxwbFRQa/view?usp=sharing
+
 # Screenshot
 !(./screenshots/grabandgo.png)

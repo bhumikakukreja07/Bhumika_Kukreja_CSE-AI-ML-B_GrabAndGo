@@ -3,7 +3,7 @@ A project built to simplify the food ordering experience at the K.R. Mangalam Un
 
 # Project Title: Grab&Go
 
-- **Bhumika Kukreja**
+- Made By: **Bhumika Kukreja**
 
 # Project Description
 

@@ -3,7 +3,7 @@ A project built to simplify the food ordering experience at the K.R. Mangalam Un
 
 # Project Title: Grab&Go
 
-- Made By: **Bhumika Kukreja, Mishti Jain, Mohini Chauhan, Nikki Chauhan**
+- Made By: **Bhumika Kukreja**
 
 # Project Description
 

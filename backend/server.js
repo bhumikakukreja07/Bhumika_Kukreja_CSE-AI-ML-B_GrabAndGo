@@ -1,6 +1,9 @@
 // server.js
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const crypto = require('crypto');
+const Razorpay = require('razorpay');
 const { insertOrUpdateRow } = require('./components/insert'); // Adjust path as necessary
 const { insertRowAdminDB } = require('./components/insert_from_admin_dashboard'); // Adjust path as necessary
 const { deleteRowByEmail } = require('./components/delete'); // Adjust path as necessary
@@ -9,15 +12,27 @@ const { readFromTable } = require('./components/read_table'); // Adjust path as 
 const { readRows } = require('./components/read_list_of_cards');
 const { modifyCart, getCartQuantity, getCartItems } = require('./components/insert_to_cart');
 const { sendEmailSMTP } = require('./components/email_sender');
+const { getCartWithPrices, createOrderRecord, markOrderPaid, clearCart } = require('./components/order');
 const chalk = require('chalk');
 const cors = require('cors');
 const app = express();
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 // enable CORS for all origins (during dev)
 app.use(cors());
 
 // your existing middlewares/routes
-const port = 5000;
+const port = process.env.PORT || 5000;
+
+// which frontend folder this instance serves — lets multiple frontend
+// versions (e.g. V2) run off this same backend on a different port
+const frontendDir = process.env.FRONTEND_DIR
+  ? path.resolve(process.env.FRONTEND_DIR)
+  : path.join(__dirname, '..', 'frontend');
 
 
 // Middleware to parse JSON bodies
@@ -26,7 +41,7 @@ app.use(express.json());
 
 // Route to serve the index file explicitly (optional)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/home_page.html'));
+  res.sendFile(path.join(frontendDir, 'home_page.html'));
 });
 
 
@@ -41,7 +56,7 @@ app.post('/seller_dashboard', async (req, res) => {
 
 
 // Serve static files from the frontend folder
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+app.use(express.static(frontendDir));
 
 
 function getCurrentTime() {
@@ -126,7 +141,7 @@ app.post('/otp_handler', async (req, res) => {
   
 
       const obj_obj = await return_row_from_the___specific_cell_of_the_column(email, "user_otp", "name");
-      let read_the_actual_otp = (obj_obj.otp)
+      let read_the_actual_otp = obj_obj ? obj_obj.otp : null;
       
       console.log(chalk.magenta(`this is actual otp  :- ${read_the_actual_otp}  of '${email}' email`));
       console.log(chalk.blue(`this is user entered otp  :- ${otp}  of '${email}' email`));
@@ -162,7 +177,7 @@ app.post('/verify_login', async (req, res) => {
   const { email, password} = req.body;// this is user entered email and password
   const obj_obj = await verify_users(email, "main_user_table", "email");
 
-  let read_the_actual_password = (obj_obj.password)
+  let read_the_actual_password = obj_obj ? obj_obj.password : null;
   console.log(chalk.yellow(`password is verified`));
 
   console.log(chalk.magenta(`this is actual password  :- ${read_the_actual_password}  of '${email}' email`));
@@ -196,6 +211,10 @@ app.post('/modify_cart', async (req, res) => {
     const obj_obj = await verify_users(email_name, "main_user_table", "email");
     console.log("Email:", email_name);
 
+    if (!obj_obj) {
+      return res.status(400).send({ success: false, message: "User not found" });
+    }
+
     let user_id = (obj_obj.id)
 
     console.log(`user_id is ${user_id}`)
@@ -203,7 +222,7 @@ app.post('/modify_cart', async (req, res) => {
 
     if(user_id == -1 ) {
       return res.status(400).send({ success: false, message: "User not found" });
-    }   
+    }
 
     const addResult = await modifyCart(email_name, user_id, item_id, action);
 
@@ -216,9 +235,9 @@ app.post('/modify_cart', async (req, res) => {
 app.post('/cart_quantity', async (req, res) => {
   const { user_entered_email,user_entered_password, item_id } = req.body;
   const obj_obj = await verify_users(user_entered_email, 'main_user_table', 'email');
-  let read_the_actual_password = (obj_obj.password)
+  let read_the_actual_password = obj_obj ? obj_obj.password : null;
 
-  if (read_the_actual_password === user_entered_password) {
+  if (obj_obj && read_the_actual_password === user_entered_password) {
   const qty = await getCartQuantity(user_entered_email, obj_obj.id, item_id);
   res.json({ success: true, quantity: qty });
   }else{
@@ -230,11 +249,84 @@ app.post('/cart_quantity', async (req, res) => {
 app.post('/get_cart_items', async (req, res) => {
   const { email_name } = req.body;
   const obj = await verify_users(email_name, 'main_user_table', 'email');
-  if (obj.id === -1) {
+  if (!obj || obj.id === -1) {
     return res.status(400).json({ success: false, error: 'User not found' });
   }
-  const items = await getCartItems(obj.id);              
-  res.json({ success: true, items });                   
+  const items = await getCartItems(obj.id);
+  res.json({ success: true, items });
+});
+
+
+// Creates a Razorpay order for the exact total of the caller's cart,
+// computed here from the DB — never trust an amount sent by the client.
+app.post('/create_order', async (req, res) => {
+  try {
+    const { email_name } = req.body;
+    const userObj = await verify_users(email_name, 'main_user_table', 'email');
+    if (!userObj) {
+      return res.status(400).json({ success: false, error: 'User not found' });
+    }
+
+    const cartItems = await getCartWithPrices(userObj.id);
+    if (!cartItems.length) {
+      return res.status(400).json({ success: false, error: 'Cart is empty' });
+    }
+
+    const totalAmount = cartItems.reduce(
+      (sum, row) => sum + parseFloat(row.price) * row.quantity,
+      0
+    );
+    const amountInPaise = Math.round(totalAmount * 100);
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: amountInPaise,
+      currency: 'INR',
+      receipt: `receipt_${userObj.id}_${Date.now()}`
+    });
+
+    await createOrderRecord(email_name, userObj.id, cartItems, totalAmount, razorpayOrder.id);
+
+    res.json({
+      success: true,
+      order_id: razorpayOrder.id,
+      amount: amountInPaise,
+      currency: 'INR',
+      key_id: process.env.RAZORPAY_KEY_ID
+    });
+  } catch (err) {
+    console.error('Error creating order:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// Verifies the Razorpay payment signature server-side, then marks the
+// order paid and clears the cart. Never trust a "success" claimed by the client.
+app.post('/verify_payment', async (req, res) => {
+  try {
+    const { email_name, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const userObj = await verify_users(email_name, 'main_user_table', 'email');
+    if (!userObj) {
+      return res.status(400).json({ success: false, error: 'User not found' });
+    }
+
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, error: 'Payment verification failed' });
+    }
+
+    await markOrderPaid(razorpay_order_id, razorpay_payment_id);
+    await clearCart(userObj.id);
+
+    res.json({ success: true, message: 'Payment verified, order placed' });
+  } catch (err) {
+    console.error('Error verifying payment:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 
@@ -266,6 +358,7 @@ app.post('/get_row_from_table', async (req, res) => {
 // Start the server
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Serving frontend from ${frontendDir}`);
 });
 
 

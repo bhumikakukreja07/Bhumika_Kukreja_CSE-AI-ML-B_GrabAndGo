@@ -1,12 +1,6 @@
 const { Client } = require('pg');
 
-const connParams = {
-  host: '192.168.1.201',
-  port: 5432,
-  database: 'food_db', 
-  user: 'bhumika',     
-  password: 'grab_and_go'   
-};
+const { connParams } = require("./db_config");
 
 short_row_counter=0; //global varible
 

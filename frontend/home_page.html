@@ -96,7 +96,7 @@
       const user_password = localStorage.getItem('password') || '';
       if (user_name.length <= 1 || user_password.length <= 1) {
         setTimeout(
-          () => (window.location.href = 'components/login.html'),
+          () => (window.location.href = 'login.html'),
           2000
         );
       } else {

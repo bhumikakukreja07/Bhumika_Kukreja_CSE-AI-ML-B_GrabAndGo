@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grab&amp;Go — Queue Buster</title>
+  <link rel="stylesheet" href="styles/qb.css" />
+</head>
+<body>
+  <nav class="qb-nav">
+    <div class="qb-logo"><a href="home_page.html">GRAB<em>&amp;</em>GO</a></div>
+    <div class="qb-nav-links">
+      <a href="home_page.html" class="active">Menu</a>
+      <a href="my_cart.html">My Token</a>
+      <a href="seller_dashboard.html">Seller</a>
+    </div>
+    <div class="qb-nav-right">
+      <span id="loggin_status" class="qb-user">Guest</span>
+      <a href="my_cart.html" class="qb-cart">CART</a>
+    </div>
+  </nav>
+
+  <div class="qb-hero">
+    <div>
+      <div class="qb-eyebrow">Now serving tokens across A · B · C Block</div>
+      <h1 class="qb-display">SKIP<br>THE<br>QUEUE.</h1>
+      <p>Pre-order from any block, get a numbered pickup token the second payment clears, and walk straight to the counter when it's called.</p>
+      <div class="qb-cta-row">
+        <a class="qb-btn-primary" href="grid_page.html">Start an order</a>
+        <button class="qb-btn-secondary" onclick="document.getElementById('grid-preview').scrollIntoView({behavior:'smooth'})">See today's specials</button>
+      </div>
+    </div>
+    <div class="qb-ticket">
+      <div class="qb-ticket-top"><span>Grab&amp;Go Pickup</span><span>A Block</span></div>
+      <div class="qb-ticket-num">047</div>
+      <div class="qb-ticket-dash"></div>
+      <div class="qb-ticket-row"><span>Paneer Roll ×1</span><span>₹80</span></div>
+      <div class="qb-ticket-row"><span>Cold Coffee ×1</span><span>₹50</span></div>
+      <div class="qb-ticket-row"><b>Ready in</b><b>~9 min</b></div>
+    </div>
+  </div>
+
+  <div id="grid-preview" class="qb-blocks">
+    <div class="qb-block-tab active">A Block · Tandoor &amp; Grill</div>
+    <div class="qb-block-tab">B Block · South Express</div>
+    <div class="qb-block-tab">C Block · Chai &amp; Chaat</div>
+  </div>
+
+  <div class="qb-menu">
+    <div id="home_preview_grid" class="qb-grid"></div>
+  </div>
+
+  <script type="module">
+    import { addHTMLToBody } from './components/create_html_elements.js';
+    import { setupPopupAnimation } from './components/animate_popup.js';
+
+    // show a small preview of today's items on the home page
+    (async function loadPreview() {
+      const resp = await fetch('/list_of_items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ starting_row: 0, number_of_row: 3 })
+      });
+      const items = await resp.json();
+      items.forEach((item, i) => {
+        addHTMLToBody('home_preview_grid', `home-btn_${i}`, `home-content_${i}`, item.img, item.title, item.price, item.description, item.id);
+        setupPopupAnimation(`home-btn_${i}`, `home-content_${i}`);
+      });
+    })();
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <script>
+    async function postData(endpoint_url, data) {
+      const hostname = window.location.hostname;
+      const port = window.location.port;
+      const base_url = `http://${hostname}:${port}${endpoint_url}`;
+      const resp = await fetch(base_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return resp.json();
+    }
+    async function login() {
+      const user_name = localStorage.getItem('email') || '';
+      const user_password = localStorage.getItem('password') || '';
+      if (user_name.length <= 1 || user_password.length <= 1) {
+        setTimeout(() => (window.location.href = 'login.html'), 2000);
+      } else {
+        document.getElementById('loggin_status').innerText = `Welcome ${user_name}`;
+      }
+    }
+    login();
+  </script>
+</body>
+</html>

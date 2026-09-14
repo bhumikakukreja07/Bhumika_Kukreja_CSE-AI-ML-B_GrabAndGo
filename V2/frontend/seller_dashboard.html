@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grab&amp;Go — Seller Dashboard</title>
+  <link rel="stylesheet" href="styles/qb.css" />
+</head>
+<body>
+
+  <div class="qb-dash">
+    <aside class="qb-sidebar">
+      <button id="addBtn" class="active">Add Items</button>
+      <button id="viewBtn">Items</button>
+      <button id="ordersBtn">Orders</button>
+    </aside>
+
+    <main class="qb-dash-content">
+      <div id="addSection" class="qb-dash-section active">
+        <h1>Add New Item</h1>
+        <form id="sellerForm">
+          <div class="qb-form-field">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="qb-form-field">
+            <label for="price">Price (₹)</label>
+            <input type="text" id="price" name="price" required>
+          </div>
+          <div class="qb-form-field">
+            <label for="description">Description</label>
+            <input type="text" id="description" name="description" required>
+          </div>
+          <div class="qb-form-field">
+            <label for="imgPath">Image Path</label>
+            <input type="text" id="imgPath" name="imgPath" required>
+          </div>
+          <div class="qb-form-field">
+            <label for="canteen">Canteen / Block</label>
+            <input type="text" id="canteen" name="canteen" required>
+          </div>
+          <button type="submit" class="qb-submit-btn">Add to menu</button>
+        </form>
+      </div>
+
+      <div id="itemsSection" class="qb-dash-section">
+        <h1>Items</h1>
+        <div id="game_container_id" class="qb-grid" style="max-width: none;"></div>
+        <button id="loadMoreBtn" class="qb-load-more">LOAD MORE</button>
+      </div>
+
+      <div id="ordersSection" class="qb-dash-section">
+        <h1>Orders</h1>
+        <div id="orders_container_id">
+          <ul id="cart-list"></ul>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast">Menu item added successfully!</div>
+
+  <script>
+    const addBtn = document.getElementById('addBtn');
+    const viewBtn = document.getElementById('viewBtn');
+    const addSection = document.getElementById('addSection');
+    const itemsSection = document.getElementById('itemsSection');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const ordersBtn = document.getElementById('ordersBtn');
+    const ordersSection = document.getElementById('ordersSection');
+
+    function activate(btn, section) {
+      [addBtn, viewBtn, ordersBtn].forEach(b => b.classList.remove('active'));
+      [addSection, itemsSection, ordersSection].forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      section.classList.add('active');
+    }
+
+    addBtn.addEventListener('click', () => activate(addBtn, addSection));
+    viewBtn.addEventListener('click', () => activate(viewBtn, itemsSection));
+    ordersBtn.addEventListener('click', () => activate(ordersBtn, ordersSection));
+
+    document.getElementById('sellerForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {
+        item_name: document.getElementById('name').value,
+        item_price: document.getElementById('price').value,
+        description: document.getElementById('description').value,
+        img_path: document.getElementById('imgPath').value,
+        canteen: document.getElementById('canteen').value
+      };
+      await fetch(window.location.origin + '/seller_dashboard', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      });
+      document.getElementById('sellerForm').reset();
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    });
+  </script>
+
+  <script type="module">
+    import { addHTMLToBody } from './components/create_html_elements.js';
+
+    const batchSize = 6;
+    let startingRow = 0;
+
+    async function loadMore() {
+      try {
+        const resp = await fetch('/list_of_items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ starting_row: startingRow, number_of_row: batchSize })
+        });
+        const items = await resp.json();
+        items.forEach((item, idx) => {
+          const i = startingRow + idx;
+          addHTMLToBody(
+            'game_container_id',
+            `image-button_${i}`,
+            `custom-content_${i}`,
+            item.img,
+            item.title,
+            item.price,
+            item.description,
+            item.id
+          );
+        });
+        startingRow += batchSize;
+      } catch (err) {
+        console.error('Error loading items:', err);
+      }
+    }
+
+    loadMoreBtn.addEventListener('click', loadMore);
+    loadMore();
+  </script>
+</body>
+</html>

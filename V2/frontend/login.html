@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grab&amp;Go — Login</title>
+  <link rel="stylesheet" href="styles/qb.css" />
+</head>
+<body>
+  <div class="qb-login-wrap">
+    <div class="qb-login-ticket">
+      <div class="qb-login-kicker">Pickup Token Login</div>
+      <div class="qb-login-title">GRAB&amp;GO</div>
+      <div class="qb-login-dash"></div>
+
+      <div class="qb-field">
+        <label for="email">Email ID</label>
+        <input type="text" id="email" placeholder="you@krmangalam.edu.in" required />
+      </div>
+      <button class="qb-login-btn" onclick="submit_button()">Get OTP</button>
+      <p id="response" class="qb-login-msg"></p>
+
+      <div id="my_otp_Div">
+        <div class="qb-field">
+          <label for="otp">Enter OTP</label>
+          <input type="text" id="otp" placeholder="6-digit code" />
+        </div>
+        <button class="qb-login-btn" onclick="submit_otp()">Submit OTP</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function postData(endpoint_url, data) {
+      const hostname = window.location.hostname;
+      const port = window.location.port;
+      const base_url = `http://${hostname}:${port}${endpoint_url}`;
+      var response = await fetch(base_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return await response.json();
+    }
+
+    async function submit_button() {
+      let email = document.getElementById('email').value;
+      try {
+        let result = await postData('/login_request', { email: email });
+        document.getElementById('response').textContent = result.message_from_server;
+        setTimeout(function() {
+          document.getElementById("my_otp_Div").style.display = "block";
+        }, 1000);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function submit_otp() {
+      let email = document.getElementById('email').value;
+      let otp = document.getElementById('otp').value;
+
+      let result = await postData('/otp_handler', { email: email, otp: otp });
+      try {
+        if (result.message_from_server === "success") {
+          email = result.email;
+          password = result.password;
+          localStorage.setItem('email', email);
+          localStorage.setItem('password', password);
+          document.getElementById('response').textContent = "Token confirmed! Redirecting…";
+          setTimeout(() => { window.location.href = "home_page.html"; }, 1200);
+        } else {
+          document.getElementById('response').textContent = "Wrong OTP — try again.";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('response').textContent = "Error verifying OTP. Please try again.";
+      }
+    }
+  </script>
+</body>
+</html>

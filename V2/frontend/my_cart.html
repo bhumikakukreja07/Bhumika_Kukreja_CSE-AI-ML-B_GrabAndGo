@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grab&amp;Go — My Token</title>
+  <link rel="stylesheet" href="styles/qb.css" />
+</head>
+<body>
+  <nav class="qb-nav">
+    <div class="qb-logo"><a href="home_page.html">GRAB<em>&amp;</em>GO</a></div>
+    <div class="qb-nav-links">
+      <a href="grid_page.html">Menu</a>
+      <a href="my_cart.html" class="active">My Token</a>
+      <a href="seller_dashboard.html">Seller</a>
+    </div>
+    <div class="qb-nav-right">
+      <span id="loggin_status" class="qb-user">Guest</span>
+    </div>
+  </nav>
+
+  <div class="qb-cart-wrap">
+    <h1 class="qb-cart-title">My Token</h1>
+    <p class="qb-cart-sub">Everything you've added — confirm to lock in your pickup number.</p>
+    <ul id="cart-list"></ul>
+    <button id="orderBtn" onclick="cartBtn()">Confirm order</button>
+  </div>
+
+  <div id="toast">Token confirmed — head to your block when it's called!</div>
+
+  <script type="module" src="cart.js"></script>
+
+  <script>
+    function cartBtn() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+  </script>
+
+  <script type="module">
+    import { loadCartItems } from './cart.js';
+  </script>
+
+  <script>
+    (function showStatus() {
+      const user_name = localStorage.getItem('email') || '';
+      if (user_name.length > 1) {
+        document.getElementById('loggin_status').innerText = `Welcome ${user_name}`;
+      }
+    })();
+  </script>
+</body>
+</html>

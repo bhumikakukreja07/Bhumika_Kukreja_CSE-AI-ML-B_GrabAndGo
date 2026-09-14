@@ -23,18 +23,88 @@
     <h1 class="qb-cart-title">My Token</h1>
     <p class="qb-cart-sub">Everything you've added — confirm to lock in your pickup number.</p>
     <ul id="cart-list"></ul>
-    <button id="orderBtn" onclick="cartBtn()">Confirm order</button>
+    <button id="orderBtn" onclick="startPayment()">Confirm order</button>
   </div>
 
   <div id="toast">Token confirmed — head to your block when it's called!</div>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script type="module" src="cart.js"></script>
 
   <script>
-    function cartBtn() {
+    function showToast(message) {
       const toast = document.getElementById('toast');
+      toast.textContent = message;
       toast.classList.add('show');
       setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    async function postJSON(endpoint, data) {
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return resp.json();
+    }
+
+    async function startPayment() {
+      const email_name = localStorage.getItem('email');
+      if (!email_name) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const orderBtn = document.getElementById('orderBtn');
+      orderBtn.disabled = true;
+      orderBtn.textContent = 'Preparing payment…';
+
+      try {
+        const order = await postJSON('/create_order', { email_name });
+        if (!order.success) {
+          showToast(order.error || 'Could not start payment');
+          return;
+        }
+
+        const options = {
+          key: order.key_id,
+          amount: order.amount,
+          currency: order.currency,
+          name: 'Grab&Go',
+          description: 'Canteen pickup token',
+          order_id: order.order_id,
+          handler: async function (response) {
+            const verify = await postJSON('/verify_payment', {
+              email_name,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+            if (verify.success) {
+              showToast('Token confirmed — head to your block when it\'s called!');
+              setTimeout(() => window.location.reload(), 1500);
+            } else {
+              showToast('Payment could not be verified.');
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              showToast('Payment cancelled.');
+            }
+          },
+          prefill: { email: email_name },
+          theme: { color: '#d64545' }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        console.error(err);
+        showToast('Something went wrong starting payment.');
+      } finally {
+        orderBtn.disabled = false;
+        orderBtn.textContent = 'Confirm order';
+      }
     }
   </script>
 

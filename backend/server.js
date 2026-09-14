@@ -99,7 +99,7 @@ app.post('/login_request', async (req, res) => {
     const randomNum = getRandomNumberWithLength(6);
     console.log(chalk.red(`Random 6-digit number: ${randomNum}`));
   
-    sendEmailSMTP(
+    const emailResult = await sendEmailSMTP(
       process.env.EMAIL_SENDER || 'grab.and.go.krmu@gmail.com',
       null,
       email,
@@ -107,10 +107,18 @@ app.post('/login_request', async (req, res) => {
       `To verify your email address, please use the following One Time Password (OTP): ${randomNum}`,
     )
 
+    if (!emailResult.success) {
+      console.error('OTP email failed to send:', emailResult.message);
+      return res.status(502).json({
+        message_from_server: 'failed to send otp email',
+        error: emailResult.message
+      });
+    }
+
     // const result = await insertRow('user_otp', [email, randomNum]);
     const result = await insertOrUpdateRow('user_otp', ['name', 'otp'], [email, randomNum], 'name', 'otp');
     console.log('insertRow result:', result);
-    
+
     if (result.success) {
       return res.json({
         message_from_server: 'otp generated successfully',

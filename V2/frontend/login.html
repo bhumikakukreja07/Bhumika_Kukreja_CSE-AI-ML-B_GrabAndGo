@@ -45,9 +45,11 @@
       try {
         let result = await postData('/login_request', { email: email });
         document.getElementById('response').textContent = result.message_from_server;
-        setTimeout(function() {
-          document.getElementById("my_otp_Div").style.display = "block";
-        }, 1000);
+        if (result.message_from_server === 'otp generated successfully') {
+          setTimeout(function() {
+            document.getElementById("my_otp_Div").style.display = "block";
+          }, 1000);
+        }
       } catch (err) {
         console.error(err);
       }

@@ -100,8 +100,8 @@ app.post('/login_request', async (req, res) => {
     console.log(chalk.red(`Random 6-digit number: ${randomNum}`));
   
     sendEmailSMTP(
-      'grab.and.go.krmu@gmail.com',
-      'oipv rmbo iioz zkbe',
+      process.env.EMAIL_SENDER || 'grab.and.go.krmu@gmail.com',
+      null,
       email,
       `Verify your email`,
       `To verify your email address, please use the following One Time Password (OTP): ${randomNum}`,

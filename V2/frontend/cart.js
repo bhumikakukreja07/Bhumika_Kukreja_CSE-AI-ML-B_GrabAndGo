@@ -2,10 +2,7 @@ import { updateQuantityUI } from './components/create_html_elements.js';
 
     // POST helper
     async function postData(endpoint_url, data) {
-      const hostname = window.location.hostname;
-      const port = window.location.port;
-      const base_url = `http://${hostname}:${port}${endpoint_url}`;
-      const response = await fetch(base_url, {
+      const response = await fetch(endpoint_url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)

@@ -1,7 +1,5 @@
 async function postData(endpoint_url, data) {
-        const port = window.location.port;
-        const base_url = `http://localhost:${port}${endpoint_url}`;
-        var response = await fetch(base_url, {
+        var response = await fetch(endpoint_url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)

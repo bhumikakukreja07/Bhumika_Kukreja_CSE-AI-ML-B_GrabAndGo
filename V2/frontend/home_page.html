@@ -37,10 +37,11 @@
   </div>
 
   <div id="grid-preview" class="qb-blocks">
-    <div class="qb-block-tab active">A Block · Tandoor &amp; Grill</div>
-    <div class="qb-block-tab">B Block · Basil</div>
-    <div class="qb-block-tab">C Block · Chai &amp; Chaat</div>
-    <div class="qb-block-tab">D Block · Nescafe</div>
+    <div class="qb-block-tab active" data-canteen="">All Blocks</div>
+    <div class="qb-block-tab" data-canteen="A Block · Tandoor &amp; Grill">A Block · Tandoor &amp; Grill</div>
+    <div class="qb-block-tab" data-canteen="B Block · Basil">B Block · Basil</div>
+    <div class="qb-block-tab" data-canteen="C Block · Chai &amp; Chaat">C Block · Chai &amp; Chaat</div>
+    <div class="qb-block-tab" data-canteen="D Block · Nescafe">D Block · Nescafe</div>
   </div>
 
   <div class="qb-menu">
@@ -51,19 +52,33 @@
     import { addHTMLToBody } from './components/create_html_elements.js';
     import { setupPopupAnimation } from './components/animate_popup.js';
 
-    // show a small preview of today's items on the home page
-    (async function loadPreview() {
+    let previewCardIndex = 0;
+
+    // show a preview of items on the home page, optionally filtered by canteen
+    async function loadPreview(canteen) {
       const resp = await fetch('/list_of_items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ starting_row: 0, number_of_row: 3 })
+        body: JSON.stringify({ starting_row: 0, number_of_row: 12, canteen: canteen || undefined })
       });
       const items = await resp.json();
-      items.forEach((item, i) => {
+      document.getElementById('home_preview_grid').innerHTML = '';
+      items.forEach((item) => {
+        const i = previewCardIndex++;
         addHTMLToBody('home_preview_grid', `home-btn_${i}`, `home-content_${i}`, item.img, item.title, item.price, item.description, item.id);
         setupPopupAnimation(`home-btn_${i}`, `home-content_${i}`);
       });
-    })();
+    }
+
+    document.querySelectorAll('#grid-preview .qb-block-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#grid-preview .qb-block-tab').forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        loadPreview(tab.dataset.canteen);
+      });
+    });
+
+    loadPreview('');
   </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>

@@ -202,9 +202,9 @@ app.post('/verify_login', async (req, res) => {
 
 
 app.post('/list_of_items', async (req, res) => {
-const { list_of_favourate_categories , starting_row , number_of_row } = req.body;
+const { list_of_favourate_categories , starting_row , number_of_row, canteen } = req.body;
 
-const list_of_objects = await readRows(starting_row , number_of_row); // reads 5 rows from the list_of_card table
+const list_of_objects = await readRows(starting_row , number_of_row, canteen || null);
 
     console.log(list_of_objects);
     list_of_relevent_cards = list_of_objects
@@ -284,7 +284,10 @@ app.post('/create_order', async (req, res) => {
       (sum, row) => sum + parseFloat(row.price) * row.quantity,
       0
     );
-    const amountInPaise = Math.round(totalAmount * 100);
+    // Pay half online to book the token, the rest at the counter on pickup.
+    const amountToPayOnline = Math.round(totalAmount * 50) / 100;
+    const amountDueAtCounter = Math.round((totalAmount - amountToPayOnline) * 100) / 100;
+    const amountInPaise = Math.round(amountToPayOnline * 100);
 
     const razorpayOrder = await razorpay.orders.create({
       amount: amountInPaise,
@@ -292,14 +295,17 @@ app.post('/create_order', async (req, res) => {
       receipt: `receipt_${userObj.id}_${Date.now()}`
     });
 
-    await createOrderRecord(email_name, userObj.id, cartItems, totalAmount, razorpayOrder.id);
+    await createOrderRecord(email_name, userObj.id, cartItems, totalAmount, amountToPayOnline, amountDueAtCounter, razorpayOrder.id);
 
     res.json({
       success: true,
       order_id: razorpayOrder.id,
       amount: amountInPaise,
       currency: 'INR',
-      key_id: process.env.RAZORPAY_KEY_ID
+      key_id: process.env.RAZORPAY_KEY_ID,
+      total_amount: totalAmount,
+      amount_paid_online: amountToPayOnline,
+      amount_due_at_counter: amountDueAtCounter
     });
   } catch (err) {
     console.error('Error creating order:', err);

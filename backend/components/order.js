@@ -17,15 +17,15 @@ async function getCartWithPrices(user_id) {
   }
 }
 
-async function createOrderRecord(user_email, user_id, items, totalAmount, razorpayOrderId) {
+async function createOrderRecord(user_email, user_id, items, totalAmount, amountPaidOnline, amountDueAtCounter, razorpayOrderId) {
   const client = new Client(connParams);
   try {
     await client.connect();
     const res = await client.query(
-      `INSERT INTO orders (user_email, user_id, items, total_amount, razorpay_order_id, status)
-       VALUES ($1, $2, $3, $4, $5, 'created')
+      `INSERT INTO orders (user_email, user_id, items, total_amount, amount_paid_online, amount_due_at_counter, razorpay_order_id, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'created')
        RETURNING *`,
-      [user_email, user_id, JSON.stringify(items), totalAmount, razorpayOrderId]
+      [user_email, user_id, JSON.stringify(items), totalAmount, amountPaidOnline, amountDueAtCounter, razorpayOrderId]
     );
     return res.rows[0];
   } finally {

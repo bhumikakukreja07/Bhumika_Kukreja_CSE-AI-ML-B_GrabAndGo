@@ -65,6 +65,12 @@ import { updateQuantityUI } from './components/create_html_elements.js';
             summaryLi.innerHTML = `<div class="cart-summary">Subtotal (${totalItems} items): ₹${totalPrice.toFixed(2)}</div>`;
             cartList.appendChild(summaryLi);
 
+            const splitNote = document.getElementById('split-note');
+            if (splitNote && totalPrice > 0) {
+              const half = Math.round(totalPrice * 50) / 100;
+              const rest = Math.round((totalPrice - half) * 100) / 100;
+              splitNote.textContent = `Pay ₹${half.toFixed(2)} now to book · ₹${rest.toFixed(2)} due at the counter`;
+            }
     }
 
     // run it as soon as the page is ready

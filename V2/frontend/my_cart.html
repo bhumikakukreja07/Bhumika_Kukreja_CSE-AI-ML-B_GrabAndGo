@@ -21,8 +21,9 @@
 
   <div class="qb-cart-wrap">
     <h1 class="qb-cart-title">My Token</h1>
-    <p class="qb-cart-sub">Everything you've added — confirm to lock in your pickup number.</p>
+    <p class="qb-cart-sub">Confirm to lock in your pickup number.</p>
     <ul id="cart-list"></ul>
+    <p id="split-note" style="font-size:12.5px; color:#8a8370; text-align:center; margin: -4px 0 14px;"></p>
     <button id="orderBtn" onclick="startPayment()">Confirm order</button>
   </div>
 
@@ -66,12 +67,15 @@
           return;
         }
 
+        document.getElementById('split-note').textContent =
+          `Paying ₹${order.amount_paid_online.toFixed(2)} now · ₹${order.amount_due_at_counter.toFixed(2)} due at the counter`;
+
         const options = {
           key: order.key_id,
           amount: order.amount,
           currency: order.currency,
           name: 'Grab&Go',
-          description: 'Canteen pickup token',
+          description: `Booking payment (50%) — ₹${order.amount_due_at_counter.toFixed(2)} due at counter`,
           order_id: order.order_id,
           handler: async function (response) {
             const verify = await postJSON('/verify_payment', {
@@ -81,8 +85,8 @@
               razorpay_signature: response.razorpay_signature
             });
             if (verify.success) {
-              showToast('Token confirmed — head to your block when it\'s called!');
-              setTimeout(() => window.location.reload(), 1500);
+              showToast(`Token confirmed — pay ₹${order.amount_due_at_counter.toFixed(2)} at the counter!`);
+              setTimeout(() => window.location.reload(), 2000);
             } else {
               showToast('Payment could not be verified.');
             }

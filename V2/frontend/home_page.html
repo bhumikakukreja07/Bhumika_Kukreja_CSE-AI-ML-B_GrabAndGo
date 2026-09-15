@@ -30,20 +30,17 @@
         <button class="qb-btn-secondary" onclick="document.getElementById('grid-preview').scrollIntoView({behavior:'smooth'})">See today's specials</button>
       </div>
     </div>
-    <div class="qb-ticket">
-      <div class="qb-ticket-top"><span>Grab&amp;Go Pickup</span><span>A Block</span></div>
-      <div class="qb-ticket-num">047</div>
-      <div class="qb-ticket-dash"></div>
-      <div class="qb-ticket-row"><span>Paneer Roll ×1</span><span>₹80</span></div>
-      <div class="qb-ticket-row"><span>Cold Coffee ×1</span><span>₹50</span></div>
-      <div class="qb-ticket-row"><b>Ready in</b><b>~9 min</b></div>
+    <div class="qb-ticket" id="hero-ticket">
+      <div class="qb-ticket-top"><span>Grab&amp;Go Pickup</span><span id="ticket-status">Your Token</span></div>
+      <div id="ticket-body"><p style="color:#c9c4b4; font-size:13px; margin:0;">Log in to see what's in your token.</p></div>
     </div>
   </div>
 
   <div id="grid-preview" class="qb-blocks">
     <div class="qb-block-tab active">A Block · Tandoor &amp; Grill</div>
-    <div class="qb-block-tab">B Block · South Express</div>
+    <div class="qb-block-tab">B Block · Basil</div>
     <div class="qb-block-tab">C Block · Chai &amp; Chaat</div>
+    <div class="qb-block-tab">D Block · Nescafe</div>
   </div>
 
   <div class="qb-menu">
@@ -87,8 +84,40 @@
         setTimeout(() => (window.location.href = 'login.html'), 2000);
       } else {
         document.getElementById('loggin_status').innerText = `Welcome ${user_name}`;
+        loadTicket(user_name);
       }
     }
+
+    async function loadTicket(email_name) {
+      const ticketBody = document.getElementById('ticket-body');
+      const ticketStatus = document.getElementById('ticket-status');
+      const cartResult = await postData('/get_cart_items', { email_name });
+
+      if (!cartResult.success || !cartResult.items.length) {
+        ticketStatus.textContent = 'Your Token';
+        ticketBody.innerHTML = '<p style="color:#c9c4b4; font-size:13px; margin:0;">Nothing in your token yet — <a href="grid_page.html" style="color:#f2a93b;">go add something</a>.</p>';
+        return;
+      }
+
+      let total = 0;
+      let rowsHtml = '';
+      for (const row of cartResult.items) {
+        const itemResult = await postData('/get_row_from_table', { table_name: 'items_list', item_id: row.item_id });
+        if (!itemResult.row) continue;
+        const price = parseFloat(itemResult.row.price);
+        const qty = parseInt(row.quantity, 10);
+        total += price * qty;
+        rowsHtml += `<div class="qb-ticket-row"><span>${itemResult.row.title} ×${qty}</span><span>₹${itemResult.row.price}</span></div>`;
+      }
+
+      ticketStatus.textContent = 'Your Token';
+      ticketBody.innerHTML = `
+        <div class="qb-ticket-dash"></div>
+        ${rowsHtml}
+        <div class="qb-ticket-row"><b>Total</b><b>₹${total.toFixed(2)}</b></div>
+      `;
+    }
+
     login();
   </script>
 </body>

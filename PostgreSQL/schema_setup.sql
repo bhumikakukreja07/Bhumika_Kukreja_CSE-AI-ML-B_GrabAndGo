@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS orders (
     user_id INTEGER NOT NULL,
     items JSONB NOT NULL,
     total_amount NUMERIC(10, 2) NOT NULL,
+    amount_paid_online NUMERIC(10, 2),
+    amount_due_at_counter NUMERIC(10, 2),
     razorpay_order_id VARCHAR(255),
     razorpay_payment_id VARCHAR(255),
     status VARCHAR(20) NOT NULL DEFAULT 'created',
